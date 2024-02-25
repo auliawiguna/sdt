@@ -1,73 +1,29 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Summary
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Users Endpoints:
+![image](https://github.com/auliawiguna/sdt/assets/26473549/f2c258fc-010e-4c51-ac50-c707b22493cb)
+  - **POST**: Adds a new user with email validation.
+  - **PUT**: Updates an existing user.
+  - **DELETE**: Removes an existing user.
+  - **/users/test-birthday**: A tool for testing the cron job that triggers new birthday greetings.
+  - **/users/test-resend-greetings**: A tool for testing the cron job that resends delayed greeting emails.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Logic:
+  - A cron job (`src/users/users.service.ts` - `birthdayCron`) runs every hour to handle happy birthday greetings. It queries users who have a birthday on the current day at 9 am in their timezone. This ensures that the job is executed multiple times a day, minimizing the chance of missing anyone.
+  - A separate cron job (`src/users/users.service.ts` - `sendDelayedGreeting`) runs every 12 hours to resend delayed greetings from the current year. If the resend fails, the cron will attempt to resend it in the next 12 hours.
 
-## Description
+## Test Plan
+### Manual Testing:
+  - Preferably use MySQL as the RDBMS.
+  - Copy `.env.example` to `.env` and customize it for your workstation.
+  - Run `nvm use` to ensure the correct Node.js version.
+  - Run `npm i`.
+  - Run `npm run start:dev` to launch the development environment.
+  - Sequelize ORM handles table migrations. It will migrate tables on the first start, and you can create additional migrations as needed.
+  - Open [http://127.0.0.1:3000/api/v1/api-docs#](http://127.0.0.1:3000/api/v1/api-docs#) to access the Swagger API docs.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+### Unit Test:
+  - Copy `.env.example` to `.env` and customize it for your workstation.
+  - Run `nvm use` to ensure the correct Node.js version.
+  - Run `npm i`.
+  - Run `npm run test` to execute unit tests and possibly E2E tests.
