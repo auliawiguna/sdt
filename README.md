@@ -12,8 +12,8 @@
   - A cron job (`src/users/users.service.ts` - `birthdayCron`) runs every hour to handle happy birthday greetings. It queries users who have a birthday on the current day at 9 am in their timezone. This ensures that the job is executed multiple times a day, minimizing the chance of missing anyone.
   - A separate cron job (`src/users/users.service.ts` - `sendDelayedGreeting`) runs every 12 hours to resend delayed greetings from the current year. If the resend fails, the cron will attempt to resend it in the next 12 hours.
 
-## Test Plan
-### Manual Testing:
+# Test Plan
+## Manual Testing:
   - Preferably use MySQL as the RDBMS.
   - Copy `.env.example` to `.env` and customize it for your workstation.
   - Run `nvm use` to ensure the correct Node.js version.
@@ -22,7 +22,7 @@
   - Sequelize ORM handles table migrations. It will migrate tables on the first start, and you can create additional migrations as needed.
   - Open [http://127.0.0.1:3000/api/v1/api-docs#](http://127.0.0.1:3000/api/v1/api-docs#) to access the Swagger API docs.
 
-### Unit Test:
+## Unit Test:
   - Copy `.env.example` to `.env` and customize it for your workstation.
   - Run `nvm use` to ensure the correct Node.js version.
   - Run `npm i`.
