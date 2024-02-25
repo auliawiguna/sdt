@@ -3,11 +3,13 @@ import {
   BeforeCreate,
   BeforeUpdate,
   Column,
+  HasMany,
   Model,
   Table,
   Unique,
 } from 'sequelize-typescript';
 import { generateHash } from './../../helpers/hash';
+import { UserGreeting } from './user-greeting.model';
 
 @Table({ timestamps: true, tableName: 'users' })
 export class User extends Model<User> {
@@ -31,6 +33,9 @@ export class User extends Model<User> {
   @AllowNull(false)
   @Column
   dob: Date;
+
+  @HasMany(() => UserGreeting)
+  greetings: UserGreeting[];
 
   @BeforeCreate
   static hashPassword(instance: User) {

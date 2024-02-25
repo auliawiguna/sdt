@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -18,6 +19,18 @@ import { User } from './models/user.model';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('/test-birthday')
+  @HttpCode(HttpStatus.CREATED)
+  testBirthDay() {
+    return this.usersService.birthdayCron();
+  }
+
+  @Get('/test-resend-greetings')
+  @HttpCode(HttpStatus.CREATED)
+  testSendDelayedGreeting() {
+    return this.usersService.sendDelayedGreeting();
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
