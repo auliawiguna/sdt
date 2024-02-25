@@ -25,6 +25,9 @@ export class User extends Model<User> {
   @Column
   password: string;
 
+  @Column
+  timezone: string;
+
   @AllowNull(false)
   @Column
   dob: Date;

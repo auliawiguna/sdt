@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   IsEmail,
+  IsTimeZone,
 } from 'class-validator';
 import { isBoolean, isString } from 'lodash';
 
@@ -40,6 +41,16 @@ export class CreateUserDto {
   })
   @IsBoolean()
   isAdmin: boolean;
+
+  @ApiProperty({
+    example: 'Asia/Jakarta',
+    description: 'Timezone',
+  })
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  @IsTimeZone()
+  timezone: string;
 
   @ApiProperty({ example: 'password', description: 'The password of the User' })
   @IsOptional()

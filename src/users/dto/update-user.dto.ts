@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   IsEmail,
+  IsTimeZone,
 } from 'class-validator';
 import { isBoolean, isString } from 'lodash';
 
@@ -25,6 +26,16 @@ export class UpdateUserDto {
   @IsString()
   @IsEmail()
   email: string;
+
+  @ApiProperty({
+    example: 'Asia/Jakarta',
+    description: 'Timezone',
+  })
+  @IsDefined()
+  @IsNotEmpty()
+  @IsString()
+  @IsTimeZone()
+  timezone: string;
 
   @ApiProperty({ example: 'true', description: 'The admin status of the User' })
   @IsOptional()
