@@ -112,7 +112,7 @@ export class UsersService {
 
   @Cron(CronExpression.EVERY_HOUR)
   async birthdayCron() {
-    const now = new Date('2024-04-18');
+    const now = new Date();
     const usersWithTodayBirthday = await User.findAll({
       where: {
         [Op.and]: [
