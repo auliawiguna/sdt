@@ -56,7 +56,7 @@ export class UsersService {
     return user.destroy();
   }
 
-  private async postGreeting({
+  public async postGreeting({
     email,
     message,
   }: {
@@ -157,7 +157,7 @@ export class UsersService {
     }
   }
 
-  private isNineAMInUserTimezone(timezone: string): boolean {
+  public isNineAMInUserTimezone(timezone: string): boolean {
     const nineAMInUserTimezone = moment
       .tz(timezone)
       .set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
@@ -166,7 +166,7 @@ export class UsersService {
     return nowInUserTimezone.isSame(nineAMInUserTimezone, 'minute');
   }
 
-  private async triggerSendEmail({
+  public async triggerSendEmail({
     email,
     name,
   }: {
