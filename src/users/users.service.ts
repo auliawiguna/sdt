@@ -80,7 +80,7 @@ export class UsersService {
   }
 
   @Cron(CronExpression.EVERY_12_HOURS)
-  async sendDelayedGreeting() {
+  public async sendDelayedGreeting() {
     const unsentGreetings = await this.userGreeting
       .scope(['birthday', 'unsent'])
       .findAll({
@@ -111,7 +111,7 @@ export class UsersService {
   }
 
   @Cron(CronExpression.EVERY_HOUR)
-  async birthdayCron() {
+  public async birthdayCron() {
     const now = new Date();
     const usersWithTodayBirthday = await User.findAll({
       where: {
