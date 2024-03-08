@@ -7,7 +7,7 @@ import { Greeting } from './models/greeting.model';
 @Module({
   imports: [SequelizeModule.forFeature([Greeting])],
   controllers: [GreetingsController],
-  providers: [GreetingsService],
+  providers: [GreetingsService, Greeting],
   exports: [SequelizeModule],
 })
 export class GreetingsModule {}

@@ -10,6 +10,7 @@ import {
 } from 'sequelize-typescript';
 import { generateHash } from './../../helpers/hash';
 import { UserGreeting } from './user-greeting.model';
+import { UserImportantDate } from './user-important-dates.model';
 
 @Table({ timestamps: true, tableName: 'users' })
 export class User extends Model<User> {
@@ -30,12 +31,15 @@ export class User extends Model<User> {
   @Column
   timezone: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column
   dob: Date;
 
   @HasMany(() => UserGreeting)
   greetings: UserGreeting[];
+
+  @HasMany(() => UserImportantDate)
+  important_dates: UserImportantDate[];
 
   @BeforeCreate
   static hashPassword(instance: User) {

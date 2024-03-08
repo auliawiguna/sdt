@@ -5,12 +5,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as moment from 'moment-timezone';
 import { Op, Sequelize } from 'sequelize';
+import { Sequelize as SequelizeTs } from 'sequelize-typescript';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { UserGreeting } from './models/user-greeting.model';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { map } from 'rxjs/operators';
+import { UserImportantDate } from './models/user-important-dates.model';
+import { Greeting } from 'src/greetings/models/greeting.model';
+import { pick } from 'lodash';
 
 @Injectable()
 export class UsersService {
@@ -19,17 +23,43 @@ export class UsersService {
     private readonly userModel: typeof User,
     @InjectModel(UserGreeting)
     private readonly userGreeting: typeof UserGreeting,
+    @InjectModel(UserImportantDate)
+    private readonly userImportantDateModel: typeof UserImportantDate,
+    @InjectModel(Greeting)
+    private readonly greetingModel: typeof UserImportantDate,
     private readonly httpService: HttpService,
+    private readonly sequelize: SequelizeTs,
   ) {}
 
   async create(payload: CreateUserDto): Promise<User> {
     const user = await this.userModel.findOne({
       where: { email: payload.email },
     });
+
     if (user) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
-    return this.userModel.create(payload);
+    const insertData = pick(payload, ['name', 'email', 'timezone']);
+
+    const transaction = await this.sequelize.transaction();
+
+    try {
+      const newUser = await this.userModel.create(insertData);
+      const importantDates = payload.important_dates.map((date) => {
+        return {
+          date: date.date,
+          user_id: newUser.id,
+          greeting_id: date.greeting_id,
+        };
+      });
+      await this.userImportantDateModel.bulkCreate(importantDates);
+
+      transaction.commit();
+
+      return await this.findOne(newUser.id);
+    } catch (error) {
+      transaction.rollback();
+    }
   }
 
   async findAll(): Promise<User[]> {
@@ -37,7 +67,14 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    return this.userModel.findOne({ where: { id } });
+    return this.userModel.findOne({
+      where: { id },
+      include: [
+        {
+          model: UserImportantDate,
+        },
+      ],
+    });
   }
 
   async update(id: string, payload: UpdateUserDto): Promise<User> {
@@ -45,7 +82,51 @@ export class UsersService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return user.update(payload);
+    const updateDate = pick(payload, ['name', 'email', 'timezone']);
+
+    const transaction = await this.sequelize.transaction();
+
+    try {
+      const updatedUser = await user.update(updateDate);
+
+      const greetingIds = payload.important_dates.map(
+        (date) => date.greeting_id,
+      );
+
+      // Remove the important dates which are not in greetingIds
+      await this.userImportantDateModel.destroy({
+        where: {
+          user_id: id,
+          greeting_id: {
+            [Op.notIn]: greetingIds,
+          },
+        },
+      });
+
+      payload.important_dates.forEach(async (date) => {
+        const importantDate = await this.userImportantDateModel.findOne({
+          where: { user_id: id, greeting_id: date.greeting_id },
+        });
+
+        if (importantDate.id) {
+          await importantDate.update({
+            date: date.date,
+          });
+        } else {
+          await this.userImportantDateModel.create({
+            date: date.date,
+            user_id: user.id,
+            greeting_id: date.greeting_id,
+          });
+        }
+      });
+
+      await transaction.commit();
+
+      return updatedUser;
+    } catch (error) {
+      await transaction.rollback();
+    }
   }
 
   async remove(id: string): Promise<void> {

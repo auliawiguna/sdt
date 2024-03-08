@@ -1,16 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDate,
   IsDefined,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsEmail,
   IsTimeZone,
+  IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { isBoolean, isString } from 'lodash';
+import { ImportantDate } from './important-date.dto';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'Aulia', description: 'The name of the User' })
@@ -57,9 +59,14 @@ export class CreateUserDto {
   password?: string;
 
   @ApiProperty({
-    example: '1999-12-31',
-    description: 'The date of birth of the User',
+    type: ImportantDate,
+    isArray: true,
+    description: 'An array of important dates with their IDs and dates',
+    example: [{ greeting_id: 3, date: '1999-01-01' }],
   })
-  @IsDate()
-  dob: Date;
+  @IsArray()
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => ImportantDate)
+  important_dates: ImportantDate[];
 }
