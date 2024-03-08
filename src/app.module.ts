@@ -6,6 +6,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
+import { GreetingsModule } from './greetings/greetings.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HttpModule } from '@nestjs/axios';
       synchronize: true,
     }),
     UsersModule,
+    GreetingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
