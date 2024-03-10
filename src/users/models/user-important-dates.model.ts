@@ -28,8 +28,8 @@ export class UserImportantDate extends Model<UserImportantDate> {
   user_id: number;
 
   @BelongsTo(() => User)
-  users: User[];
+  users: User;
 
   @BelongsTo(() => Greeting)
-  greetings: Greeting[];
+  greetings: Greeting;
 }

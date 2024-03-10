@@ -194,21 +194,29 @@ export class UsersService {
   @Cron(CronExpression.EVERY_HOUR)
   public async birthdayCron() {
     const now = new Date();
-    const usersWithTodayBirthday = await User.findAll({
+
+    const usersWithTodayBirthday = await UserImportantDate.findAll({
       where: {
         [Op.and]: [
           Sequelize.where(
-            Sequelize.fn('DATE_FORMAT', Sequelize.literal('dob'), '%m-%d'),
+            Sequelize.fn('DATE_FORMAT', Sequelize.literal('date'), '%m-%d'),
             Sequelize.fn('DATE_FORMAT', now, '%m-%d'),
           ),
         ],
       },
+      include: [
+        {
+          model: User,
+        },
+        {
+          model: Greeting,
+        },
+      ],
     });
 
     const usersWithCorrectTimezone = usersWithTodayBirthday.filter((user) => {
-      return this.isNineAMInUserTimezone(user.timezone);
+      return this.isNineAMInUserTimezone(user.users.timezone);
     });
-    // const usersWithCorrectTimezone = usersWithTodayBirthday;
 
     console.log('Users with birthday today at 9 AM:', usersWithCorrectTimezone);
 
@@ -216,6 +224,7 @@ export class UsersService {
     // Put to the user greetings table
     if (usersWithCorrectTimezone.length) {
       usersWithCorrectTimezone.forEach(async (user) => {
+        // Put the greeting into the schedule
         const birthdayGreetings = await this.userGreeting
           .scope('birthday')
           .findOne({
@@ -223,8 +232,8 @@ export class UsersService {
           });
         if (!birthdayGreetings) {
           const sent = await this.triggerSendEmail({
-            email: user.email,
-            name: user.name,
+            email: user.users.email,
+            name: user.users.name,
           });
 
           await this.userGreeting.create({
