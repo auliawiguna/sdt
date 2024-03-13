@@ -182,7 +182,7 @@ export class UsersService {
           );
           const sent = await this.triggerSendEmail({
             email: unsentGreeting.user.email,
-            name: unsentGreeting.user?.name,
+            message: unsentGreeting.greeting,
           });
 
           unsentGreeting.update({ sent });
@@ -231,15 +231,20 @@ export class UsersService {
             where: { user_id: user.id, year: now.getFullYear() },
           });
         if (!birthdayGreetings) {
+          const greeting = user?.greetings?.greeting.replace(
+            '{NAME}',
+            user.users.name,
+          );
           const sent = await this.triggerSendEmail({
             email: user.users.email,
-            name: user.users.name,
+            message: greeting,
           });
 
           await this.userGreeting.create({
             type: 'birthday',
             user_id: user.id,
             year: now.getFullYear(),
+            greeting,
             sent,
           });
         }
@@ -258,14 +263,14 @@ export class UsersService {
 
   public async triggerSendEmail({
     email,
-    name,
+    message,
   }: {
     email: string;
-    name: string;
+    message: string;
   }): Promise<boolean> {
     const hitSdtService = await this.postGreeting({
-      email: email,
-      message: `Hey, ${name} it’s your birthday`,
+      email,
+      message,
     });
 
     return !!(hitSdtService.status && hitSdtService.status === 'sent');

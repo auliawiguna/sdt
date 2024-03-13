@@ -37,6 +37,10 @@ export class UserGreeting extends Model<UserGreeting> {
   @Column({ field: 'user_id' })
   user_id: number;
 
+  @AllowNull(false)
+  @Column
+  greeting: string;
+
   @Column({ defaultValue: false })
   sent: boolean;
 
